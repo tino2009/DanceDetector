@@ -1,15 +1,19 @@
 
-import time
+import database
 import spotify
 
-spotify.start_server()
+if __name__ == "__main__":
+    database.initialize()
 
-print("DanceDetector gestartet.")
-print("Website: http://127.0.0.1:8000")
+    print("================================")
+    print("       DANCE DETECTOR")
+    print("================================")
+    print("Datenbank initialisiert.")
+    print("Website: http://127.0.0.1:8000")
+    print("Spotify wird gestartet...")
 
-try:
-    while True:
-        time.sleep(1)
+    try:
+        spotify.start_server()
 
-except KeyboardInterrupt:
-    print("\nDanceDetector beendet.")
+    except KeyboardInterrupt:
+        print("\nDanceDetector beendet.")

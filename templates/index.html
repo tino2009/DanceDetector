@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DanceDetector</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: 40px 20px;
+    background: #0f1117;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 950px;
+    margin: auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.logo {
+    color: #1DB954;
+    letter-spacing: 3px;
+    font-weight: bold;
+}
+
+.card {
+    background: #1b1e27;
+    border: 1px solid #292d38;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+}
+
+.label {
+    color: #8b919e;
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+#song-title {
+    font-size: 30px;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+#artist {
+    color: #a7acb7;
+    margin-top: 8px;
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.metric {
+    background: #252a35;
+    border-radius: 12px;
+    padding: 22px;
+}
+
+.metric-value {
+    font-size: 38px;
+    font-weight: bold;
+    color: #1DB954;
+}
+
+.metric-label {
+    color: #9ca3af;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.status {
+    color: #1DB954;
+    margin-top: 20px;
+    font-size: 13px;
+}
+
+.error { color: #f87171; }
+
+.progress {
+    height: 9px;
+    background: #333946;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #1DB954;
+    transition: width .3s;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th, td {
+    padding: 13px 8px;
+    border-bottom: 1px solid #303540;
+}
+
+th {
+    color: #8b919e;
+    font-size: 12px;
+}
+
+td { font-size: 14px; }
+
+.small {
+    color: #8b919e;
+    font-size: 12px;
+}
+
+@media(max-width: 550px) {
+    .metrics { grid-template-columns: 1fr; }
+    #song-title { font-size: 24px; }
+    .card { padding: 20px; }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+    <div class="logo">DANCE DETECTOR</div>
+    <div class="small" id="connection">Verbinde...</div>
+</header>
+
+<div class="card">
+    <div class="label">NOW PLAYING</div>
+
+    <div id="song-title">Warte auf Spotify...</div>
+    <div id="artist"></div>
+
+    <div class="status" id="status">
+        Spotify wird verbunden
+    </div>
+
+    <div class="metrics">
+        <div class="metric">
+            <div class="metric-value" id="bpm">–</div>
+            <div class="metric-label">BEATS PER MINUTE</div>
+        </div>
+
+        <div class="metric">
+            <div class="metric-value" id="signature">–</div>
+            <div class="metric-label">TAKTART</div>
+        </div>
+    </div>
+
+    <div class="small" id="confidence" style="margin-top:18px"></div>
+</div>
+
+<div class="card">
+    <div class="label">MELODATA API USAGE</div>
+
+    <div>
+        <strong id="usage">– / 1.000</strong>
+        <span class="small" id="remaining"></span>
+    </div>
+
+    <div class="progress">
+        <div class="progress-bar" id="progress"></div>
+    </div>
+
+    <div class="small" id="reset"></div>
+</div>
+
+<div class="card">
+    <div class="label">LOCAL SONG LIBRARY</div>
+
+    <div style="margin-bottom:15px">
+        <strong id="song-count">0</strong>
+        <span class="small"> gespeicherte Songs</span>
+    </div>
+
+    <div style="overflow-x:auto">
+        <table>
+            <thead>
+                <tr>
+                    <th>SONG</th>
+                    <th>ARTIST</th>
+                    <th>BPM</th>
+                    <th>TAKT</th>
+                </tr>
+            </thead>
+            <tbody id="song-list">
+                <tr><td colspan="4">Noch keine Songs gespeichert.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div>
+
+<script>
+function formatSignature(value) {
+    if (value === null || value === undefined) return "–";
+    return value + "/4";
+}
+
+async function update() {
+    try {
+        const response = await fetch("/api/state");
+        const data = await response.json();
+
+        document.getElementById("connection").textContent =
+            data.connected ? "Spotify verbunden" : "Spotify nicht verbunden";
+
+        const title = document.getElementById("song-title");
+        const artist = document.getElementById("artist");
+
+        if (data.song) {
+            title.textContent = data.song.name;
+            artist.textContent = data.song.artists.join(", ");
+        } else {
+            title.textContent = data.connected ?
+                "Kein Song wird abgespielt" : "Spotify nicht verbunden";
+            artist.textContent = "";
+        }
+
+        const result = data.analysis;
+
+        document.getElementById("bpm").textContent =
+            result && result.bpm !== null ? result.bpm : "–";
+
+        document.getElementById("signature").textContent =
+            result ? formatSignature(result.time_signature) : "–";
+
+        document.getElementById("status").textContent =
+            data.analysis_error || data.analysis_status;
+
+        document.getElementById("status").className =
+            data.analysis_error ? "status error" : "status";
+
+        document.getElementById("confidence").textContent =
+            result && result.tempo_confidence !== null &&
+            result.tempo_confidence !== undefined
+                ? "Tempo Confidence: " +
+                  (result.tempo_confidence * 100).toFixed(0) + "%"
+                : "";
+
+        const usage = data.usage;
+        const used = usage.used || 0;
+        const limit = usage.quota_limit || 1000;
+        const remaining = Math.max(0, limit - used);
+        const percentage = limit > 0 ?
+            Math.min(100, used / limit * 100) : 0;
+
+        document.getElementById("usage").textContent =
+            used.toLocaleString("de-DE") + " / " +
+            limit.toLocaleString("de-DE");
+
+        document.getElementById("remaining").textContent =
+            " · " + remaining.toLocaleString("de-DE") + " übrig";
+
+        document.getElementById("progress").style.width =
+            percentage + "%";
+
+        document.getElementById("reset").textContent =
+            usage.resets_at ?
+            "Kontingent-Reset: " + usage.resets_at : "";
+
+        document.getElementById("song-count").textContent =
+            data.song_count;
+
+    } catch (error) {
+        document.getElementById("connection").textContent =
+            "Backend nicht erreichbar";
+    }
+}
+
+async function updateLibrary() {
+    try {
+        const response = await fetch("/api/songs");
+        const songs = await response.json();
+
+        const list = document.getElementById("song-list");
+
+        if (!songs.length) {
+            list.innerHTML =
+                '<tr><td colspan="4">Noch keine Songs gespeichert.</td></tr>';
+            return;
+        }
+
+        list.innerHTML = songs.map(song => `
+            <tr>
+                <td>${escapeHtml(song.title)}</td>
+                <td>${escapeHtml(song.artist)}</td>
+                <td>${song.bpm ?? "–"}</td>
+                <td>${formatSignature(song.time_signature)}</td>
+            </tr>
+        `).join("");
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+update();
+updateLibrary();
+
+setInterval(update, 3000);
+setInterval(updateLibrary, 10000);
+</script>
+</body>
+</html>

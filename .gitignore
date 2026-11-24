@@ -1,16 +1,4 @@
-
-# Python
-__pycache__/
-*.py[cod]
-
-# Virtual Environment
 .venv/
-
-# Secret credentials
+__pycache__/
+*.pyc
 .env
-
-# IDE
-.vscode/
-
-# Operating system
-.DS_Store
