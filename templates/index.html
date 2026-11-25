@@ -1,341 +1,317 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DanceDetector</title>
-
 <style>
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    padding: 40px 20px;
-    background: #0f1117;
-    color: white;
-    font-family: Arial, sans-serif;
-}
-
-.container {
-    max-width: 950px;
-    margin: auto;
-}
-
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 35px;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.logo {
-    color: #1DB954;
-    letter-spacing: 3px;
-    font-weight: bold;
-}
-
-.card {
-    background: #1b1e27;
-    border: 1px solid #292d38;
-    border-radius: 16px;
-    padding: 28px;
-    margin-bottom: 20px;
-}
-
-.label {
-    color: #8b919e;
-    font-size: 12px;
-    letter-spacing: 2px;
-    margin-bottom: 15px;
-}
-
-#song-title {
-    font-size: 30px;
-    font-weight: bold;
-    overflow-wrap: anywhere;
-}
-
-#artist {
-    color: #a7acb7;
-    margin-top: 8px;
-}
-
-.metrics {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.metric {
-    background: #252a35;
-    border-radius: 12px;
-    padding: 22px;
-}
-
-.metric-value {
-    font-size: 38px;
-    font-weight: bold;
-    color: #1DB954;
-}
-
-.metric-label {
-    color: #9ca3af;
-    font-size: 12px;
-    margin-top: 5px;
-}
-
-.status {
-    color: #1DB954;
-    margin-top: 20px;
-    font-size: 13px;
-}
-
-.error { color: #f87171; }
-
-.progress {
-    height: 9px;
-    background: #333946;
-    border-radius: 20px;
-    overflow: hidden;
-    margin: 15px 0;
-}
-
-.progress-bar {
-    height: 100%;
-    width: 0%;
-    background: #1DB954;
-    transition: width .3s;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-}
-
-th, td {
-    padding: 13px 8px;
-    border-bottom: 1px solid #303540;
-}
-
-th {
-    color: #8b919e;
-    font-size: 12px;
-}
-
-td { font-size: 14px; }
-
-.small {
-    color: #8b919e;
-    font-size: 12px;
-}
-
-@media(max-width: 550px) {
-    .metrics { grid-template-columns: 1fr; }
-    #song-title { font-size: 24px; }
-    .card { padding: 20px; }
-}
+:root{--bg:#0b1020;--panel:#121a2b;--panel2:#182338;--line:#26354d;--muted:#91a0b8;--text:#edf3ff;--accent:#62d6c5;--accent2:#8aa8ff;--pink:#ed8db5}
+*{box-sizing:border-box}body{margin:0;padding:38px 22px;background:radial-gradient(ellipse at 50% -20%,#1d3150 0%,var(--bg) 55%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+.container{max-width:1120px;margin:auto}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:15px}
+.logo{color:var(--accent);letter-spacing:3px;font-weight:800;font-size:14px}.card{background:linear-gradient(145deg,rgba(21,32,51,.98),rgba(15,23,39,.98));border:1px solid var(--line);border-radius:20px;padding:30px;margin-bottom:20px;box-shadow:0 14px 40px rgba(0,0,0,.18)}
+.label{color:var(--muted);font-size:11px;font-weight:700;letter-spacing:2px;margin-bottom:14px}#song-title{font-size:clamp(30px,4vw,46px);font-weight:750;overflow-wrap:anywhere;line-height:1.12;letter-spacing:-1px}
+#artist{color:#b2bfd3;font-size:18px;margin-top:10px}.status{color:var(--accent);margin-top:16px;font-size:13px}.error{color:#ff8798}
+.dance-section{margin-top:30px;padding:42px 24px;background:linear-gradient(125deg,#1a3043,#1d2943 55%,#292342);border:1px solid #36536a;border-radius:20px;text-align:center;position:relative;overflow:hidden}
+.dance-section:before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;background:rgba(98,214,197,.08);filter:blur(5px);top:-150px;right:-50px;pointer-events:none}
+.dance-section .label{color:#a7c9d2}#best-dance{color:#e7fff9;font-size:clamp(42px,6vw,64px);font-weight:800;overflow-wrap:anywhere;letter-spacing:-1.5px;text-shadow:0 5px 28px rgba(98,214,197,.15)}
+.dance-description{color:#b2c5d4;font-size:14px;margin-top:12px}.alternatives-section{margin-top:28px}.alternatives{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
+.alternative{background:var(--panel2);border:1px solid #2b3b55;border-radius:14px;padding:16px;color:#e1eafa;font-size:14px;font-weight:650;transition:transform .18s,border-color .18s}.alternative:hover{transform:translateY(-2px);border-color:#54728e}
+.alternative-score{color:var(--accent);font-size:12px;margin-top:8px;font-weight:600}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:26px}
+.metric{background:var(--panel2);border:1px solid #283951;border-radius:15px;padding:20px}.metric-value{font-size:32px;font-weight:750;color:var(--accent)}
+.metric-label,.small{color:var(--muted);font-size:11px;margin-top:7px;letter-spacing:.3px}.feature-meter{height:5px;background:#2a3950;border-radius:9px;margin-top:12px;overflow:hidden}.feature-meter span{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:9px}
+input,select{width:100%;padding:13px;border:1px solid #35445d;border-radius:10px;background:#0d1525;color:var(--text);font-size:15px;outline:none;margin:6px 0 12px}input:focus,select:focus{border-color:var(--accent)}
+button{padding:11px 15px;border:0;border-radius:10px;background:var(--accent);color:#09201f;font-size:13px;font-weight:750;cursor:pointer;transition:filter .2s,transform .2s}button:hover{filter:brightness(1.08);transform:translateY(-1px)}button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#34445e;color:#e7efff}.secondary:hover{background:#405572}
+.action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.action-row button{width:auto}.progress{height:8px;background:#293750;border-radius:20px;overflow:hidden;margin:15px 0}.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .3s}.playlist-status{color:#b2bfd3;font-size:13px;margin-top:16px}
+table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:13px 9px;border-bottom:1px solid #29364b;vertical-align:middle}th{color:var(--muted);font-size:11px;letter-spacing:1px}td{font-size:13px}
+.edit-panel{display:none;margin-top:20px;padding:22px;background:#0d1525;border:1px solid #30425d;border-radius:14px}.edit-panel.open{display:block}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field-label{display:block;color:#b2bfd3;font-size:12px;margin-top:8px}
+#edit-message{font-size:13px;margin-top:10px;color:var(--accent)}.favorite-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:11px}.dance-row{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid #2b3b55;border-radius:12px;padding:13px}.dance-info{flex:1;min-width:0}.dance-name{font-weight:700}.dance-meta{font-size:11px;color:var(--muted);margin-top:5px}.heart{font-size:22px;padding:4px 9px;background:transparent;color:#8190a8}.heart.active{color:var(--pink);background:transparent}.library-edit{display:none;background:#0d1525;padding:12px;border-radius:10px}.library-edit.open{display:table-row}
+@media(max-width:760px){.metrics{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){body{padding:20px 12px}.metrics,.form-grid{grid-template-columns:1fr 1fr}#song-title{font-size:29px}.card{padding:20px}.dance-section{padding:32px 15px}.metric{padding:15px}.metric-value{font-size:28px}}
 </style>
 </head>
-
 <body>
 <div class="container">
-
-<header>
-    <div class="logo">DANCE DETECTOR</div>
-    <div class="small" id="connection">Verbinde...</div>
-</header>
+<header><div class="logo">DANCE DETECTOR</div><div class="small" id="connection">Verbinde...</div></header>
 
 <div class="card">
     <div class="label">NOW PLAYING</div>
-
-    <div id="song-title">Warte auf Spotify...</div>
-    <div id="artist"></div>
-
-    <div class="status" id="status">
-        Spotify wird verbunden
+    <div id="song-title">Warte auf Spotify...</div><div id="artist"></div>
+    <div class="status" id="status">Spotify wird verbunden</div>
+    <div class="dance-section">
+        <div class="label">BEST MATCH</div><div id="best-dance">–</div>
+        <div class="dance-description" id="dance-description">Warte auf die Songanalyse</div>
+        <div class="action-row" style="justify-content:center">
+            <button class="secondary" id="edit-button" onclick="openCurrentEdit()" disabled>Edit</button>
+        </div>
     </div>
-
+    <div class="alternatives-section">
+        <div class="label">TANZALTERNATIVEN</div>
+        <div class="alternatives" id="alternatives"><span class="small">Noch keine Alternativen verfügbar.</span></div>
+    </div>
     <div class="metrics">
-        <div class="metric">
-            <div class="metric-value" id="bpm">–</div>
-            <div class="metric-label">BEATS PER MINUTE</div>
-        </div>
-
-        <div class="metric">
-            <div class="metric-value" id="signature">–</div>
-            <div class="metric-label">TAKTART</div>
-        </div>
+        <div class="metric"><div class="metric-value" id="bpm">–</div><div class="metric-label">BEATS PER MINUTE</div></div>
+        <div class="metric"><div class="metric-value" id="signature">–</div><div class="metric-label">TAKTART</div></div>
+        <div class="metric"><div class="metric-value" id="energy">–</div><div class="metric-label">ENERGY</div><div class="feature-meter"><span id="energy-bar" style="width:0%"></span></div></div>
+        <div class="metric"><div class="metric-value" id="danceability">–</div><div class="metric-label">DANCEABILITY</div><div class="feature-meter"><span id="danceability-bar" style="width:0%"></span></div></div>
     </div>
-
     <div class="small" id="confidence" style="margin-top:18px"></div>
+
+    <div class="edit-panel" id="current-edit">
+        <div class="label">SONG BEARBEITEN</div>
+        <div class="form-grid">
+            <div><label class="field-label">BPM</label><input id="current-bpm" type="number" min="1" max="400" step="0.1"></div>
+            <div><label class="field-label">Taktart (Zähler)</label><input id="current-meter" type="number" min="2" max="12" step="1"></div>
+        </div>
+        <div class="action-row">
+            <button onclick="applyCurrentTempo()">Apply & Tanz neu berechnen</button>
+        </div>
+        <label class="field-label">Haupttanz manuell festlegen</label>
+        <input id="current-dance" list="dance-options" placeholder="Tanz suchen ...">
+        <label class="field-label">Tanzalternativen (Komma-getrennt)</label>
+        <input id="current-alternatives" placeholder="z. B. Salsa, Discofox">
+        <div class="action-row">
+            <button onclick="applyCurrentDance()">Nur Tanz übernehmen</button>
+            <button class="secondary" onclick="closeCurrentEdit()">Schließen</button>
+        </div>
+        <div id="current-edit-message"></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="label">PLAYLIST ANALYSIS</div><h2 style="margin-top:0">Spotify Playlist analysieren</h2>
+    <p class="small">Alle Songs werden auf BPM und Takt untersucht und in deiner Datenbank gespeichert.</p>
+    <input id="playlist-url" placeholder="https://open.spotify.com/playlist/...">
+    <button id="playlist-button" onclick="runPlaylist()" style="width:100%">Run Playlist</button>
+    <div class="playlist-status" id="playlist-status">Noch keine Playlist gestartet.</div>
+    <div class="progress"><div class="progress-bar" id="playlist-progress"></div></div>
+    <div class="small" id="playlist-progress-text"></div>
 </div>
 
 <div class="card">
     <div class="label">MELODATA API USAGE</div>
-
-    <div>
-        <strong id="usage">– / 1.000</strong>
-        <span class="small" id="remaining"></span>
-    </div>
-
-    <div class="progress">
-        <div class="progress-bar" id="progress"></div>
-    </div>
-
+    <div><strong id="usage">– / 1.000</strong><span class="small" id="remaining"></span></div>
+    <div class="progress"><div class="progress-bar" id="progress"></div></div>
     <div class="small" id="reset"></div>
 </div>
 
 <div class="card">
+    <div class="label">TANZARTEN & FAVORITEN</div>
+    <p class="small">Favorisierte Tänze werden bei einem Match ab 90 % als Haupttanz bevorzugt.</p>
+    <div id="dance-catalog" class="favorite-list">Tänze werden geladen ...</div>
+</div>
+
+<div class="card">
     <div class="label">LOCAL SONG LIBRARY</div>
-
-    <div style="margin-bottom:15px">
-        <strong id="song-count">0</strong>
-        <span class="small"> gespeicherte Songs</span>
-    </div>
-
+    <div style="margin-bottom:15px"><strong id="song-count">0</strong><span class="small"> gespeicherte Songs</span></div>
     <div style="overflow-x:auto">
         <table>
-            <thead>
-                <tr>
-                    <th>SONG</th>
-                    <th>ARTIST</th>
-                    <th>BPM</th>
-                    <th>TAKT</th>
-                </tr>
-            </thead>
-            <tbody id="song-list">
-                <tr><td colspan="4">Noch keine Songs gespeichert.</td></tr>
-            </tbody>
+            <thead><tr><th>SONG</th><th>ARTIST</th><th>BPM</th><th>TAKT</th><th>TANZ</th><th></th></tr></thead>
+            <tbody id="song-list"><tr><td colspan="6">Noch keine Songs gespeichert.</td></tr></tbody>
         </table>
     </div>
 </div>
-
 </div>
 
+<datalist id="dance-options"></datalist>
+
 <script>
-function formatSignature(value) {
-    if (value === null || value === undefined) return "–";
-    return value + "/4";
+let currentState = null;
+let currentIsrc = null;
+let danceCatalog = [];
+
+function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function signature(value){return value==null?"–":value+"/4";}
+function currentDanceNames(){return danceCatalog.map(d=>d.name);}
+
+async function loadDanceCatalog(){
+    const response=await fetch("/api/dance-options");
+    danceCatalog=await response.json();
+    document.getElementById("dance-options").innerHTML=danceCatalog.map(d=>`<option value="${esc(d.name)}"></option>`).join("");
+    renderDanceCatalog();
 }
 
-async function update() {
-    try {
-        const response = await fetch("/api/state");
-        const data = await response.json();
+function renderDanceCatalog(){
+    const favorites=currentState?.favorites||[];
+    document.getElementById("dance-catalog").innerHTML=danceCatalog.map(d=>{
+        const active=favorites.includes(d.name);
+        return `<div class="dance-row">
+            <div class="dance-info">
+                <div class="dance-name">${esc(d.name)}</div>
+                <div class="dance-meta">${d.min_bpm}–${d.max_bpm} BPM · ${d.meter}/4-Takt · Ideal ${d.ideal_bpm} BPM</div>
+            </div>
+            <button class="heart ${active?"active":""}" title="${active?"Favorit entfernen":"Als Favorit markieren"}"
+                onclick="toggleFavorite('${esc(d.name)}',${!active})">${active?"♥":"♡"}</button>
+        </div>`;
+    }).join("");
+}
 
-        document.getElementById("connection").textContent =
-            data.connected ? "Spotify verbunden" : "Spotify nicht verbunden";
+async function toggleFavorite(name,favorite){
+    const response=await fetch("/api/dance-favorite",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({dance:name,favorite})});
+    const data=await response.json();
+    if(!response.ok){alert(data.error||"Favorit konnte nicht gespeichert werden.");return;}
+    await update();
+    renderDanceCatalog();
+}
 
-        const title = document.getElementById("song-title");
-        const artist = document.getElementById("artist");
-
-        if (data.song) {
-            title.textContent = data.song.name;
-            artist.textContent = data.song.artists.join(", ");
-        } else {
-            title.textContent = data.connected ?
-                "Kein Song wird abgespielt" : "Spotify nicht verbunden";
-            artist.textContent = "";
-        }
-
-        const result = data.analysis;
-
-        document.getElementById("bpm").textContent =
-            result && result.bpm !== null ? result.bpm : "–";
-
-        document.getElementById("signature").textContent =
-            result ? formatSignature(result.time_signature) : "–";
-
-        document.getElementById("status").textContent =
-            data.analysis_error || data.analysis_status;
-
-        document.getElementById("status").className =
-            data.analysis_error ? "status error" : "status";
-
-        document.getElementById("confidence").textContent =
-            result && result.tempo_confidence !== null &&
-            result.tempo_confidence !== undefined
-                ? "Tempo Confidence: " +
-                  (result.tempo_confidence * 100).toFixed(0) + "%"
-                : "";
-
-        const usage = data.usage;
-        const used = usage.used || 0;
-        const limit = usage.quota_limit || 1000;
-        const remaining = Math.max(0, limit - used);
-        const percentage = limit > 0 ?
-            Math.min(100, used / limit * 100) : 0;
-
-        document.getElementById("usage").textContent =
-            used.toLocaleString("de-DE") + " / " +
-            limit.toLocaleString("de-DE");
-
-        document.getElementById("remaining").textContent =
-            " · " + remaining.toLocaleString("de-DE") + " übrig";
-
-        document.getElementById("progress").style.width =
-            percentage + "%";
-
-        document.getElementById("reset").textContent =
-            usage.resets_at ?
-            "Kontingent-Reset: " + usage.resets_at : "";
-
-        document.getElementById("song-count").textContent =
-            data.song_count;
-
-    } catch (error) {
-        document.getElementById("connection").textContent =
-            "Backend nicht erreichbar";
+function renderDance(dance){
+    const best=document.getElementById("best-dance");
+    const desc=document.getElementById("dance-description");
+    const alternatives=document.getElementById("alternatives");
+    if(dance?.best?.name){
+        best.textContent=dance.best.name;
+        desc.textContent=dance.manual?"Manuell zugeordnet":"Automatische Einschätzung anhand von Tempo, Takt, Energy und Danceability";
+        if(dance.best.score!=null)desc.textContent+=` · Match: ${dance.best.score}%`;
+        alternatives.innerHTML=(dance.alternatives||[]).length
+            ? dance.alternatives.map(item=>`<div class="alternative">${esc(item.name)}${item.score!=null?`<div class="alternative-score">Match: ${esc(item.score)}%</div>`:""}</div>`).join("")
+            : '<span class="small">Keine weiteren Alternativen.</span>';
+    }else{
+        best.textContent="Nicht zugeordnet";
+        desc.textContent=dance?.message||"Du kannst den Tanz manuell festlegen.";
+        alternatives.innerHTML='<span class="small">Noch keine Alternativen.</span>';
     }
 }
 
-async function updateLibrary() {
-    try {
-        const response = await fetch("/api/songs");
-        const songs = await response.json();
+async function update(){
+    try{
+        const response=await fetch("/api/state");const data=await response.json();currentState=data;
+        document.getElementById("connection").textContent=data.connected?"Spotify verbunden":"Spotify nicht verbunden";
+        if(data.song){document.getElementById("song-title").textContent=data.song.name;document.getElementById("artist").textContent=(data.song.artists||[]).join(", ");}
+        else{document.getElementById("song-title").textContent=data.connected?"Kein Song wird abgespielt":"Spotify nicht verbunden";document.getElementById("artist").textContent="";}
+        const result=data.analysis;currentIsrc=result?.isrc||null;
+        document.getElementById("bpm").textContent=result?.bpm??"–";
+        document.getElementById("signature").textContent=result?signature(result.time_signature):"–";
+        const energy=result?.energy, danceability=result?.danceability;
+        document.getElementById("energy").textContent=energy==null?"–":Math.round(energy*100)+"%";
+        document.getElementById("danceability").textContent=danceability==null?"–":Math.round(danceability*100)+"%";
+        document.getElementById("energy-bar").style.width=(energy==null?0:Math.max(0,Math.min(1,energy))*100)+"%";
+        document.getElementById("danceability-bar").style.width=(danceability==null?0:Math.max(0,Math.min(1,danceability))*100)+"%";
+        document.getElementById("status").textContent=data.analysis_error||data.analysis_status;
+        document.getElementById("status").className=data.analysis_error?"status error":"status";
+        document.getElementById("confidence").textContent=result?.tempo_confidence!=null?"Tempo Confidence: "+(result.tempo_confidence*100).toFixed(0)+"%":"";
+        renderDance(result?.dance||null);
+        document.getElementById("edit-button").disabled=!currentIsrc;
+        const u=data.usage||{},used=u.used||0,limit=u.quota_limit||1000;
+        document.getElementById("usage").textContent=used.toLocaleString("de-DE")+" / "+limit.toLocaleString("de-DE");
+        document.getElementById("remaining").textContent=" · "+Math.max(0,limit-used).toLocaleString("de-DE")+" übrig";
+        document.getElementById("progress").style.width=(limit?Math.min(100,used/limit*100):0)+"%";
+        document.getElementById("reset").textContent=u.resets_at?"Kontingent-Reset: "+u.resets_at:"";
+        document.getElementById("song-count").textContent=data.song_count??0;
+        renderDanceCatalog();
+    }catch(e){document.getElementById("connection").textContent="Backend nicht erreichbar";console.error(e);}
+}
 
-        const list = document.getElementById("song-list");
+function openCurrentEdit(){
+    const r=currentState?.analysis;if(!r)return;
+    document.getElementById("current-bpm").value=r.bpm??"";
+    document.getElementById("current-meter").value=r.time_signature??"";
+    document.getElementById("current-dance").value=r.dance?.best?.name||"";
+    document.getElementById("current-alternatives").value=(r.dance?.alternatives||[]).map(x=>x.name).join(", ");
+    document.getElementById("current-edit").classList.add("open");
+}
+function closeCurrentEdit(){document.getElementById("current-edit").classList.remove("open");}
 
-        if (!songs.length) {
-            list.innerHTML =
-                '<tr><td colspan="4">Noch keine Songs gespeichert.</td></tr>';
-            return;
-        }
+async function sendSongEdit(isrc,payload){
+    const response=await fetch(`/api/song/${encodeURIComponent(isrc)}/edit`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    const data=await response.json();if(!response.ok)throw new Error(data.error||"Speichern fehlgeschlagen.");
+    return data;
+}
 
-        list.innerHTML = songs.map(song => `
-            <tr>
-                <td>${escapeHtml(song.title)}</td>
-                <td>${escapeHtml(song.artist)}</td>
-                <td>${song.bpm ?? "–"}</td>
-                <td>${formatSignature(song.time_signature)}</td>
+async function applyCurrentTempo(){
+    if(!currentIsrc)return;
+    try{
+        const bpm=Number(document.getElementById("current-bpm").value);
+        const meter=Number(document.getElementById("current-meter").value);
+        await sendSongEdit(currentIsrc,{bpm,time_signature:meter,recalculate:true});
+        await update();await updateLibrary();closeCurrentEdit();
+    }catch(e){document.getElementById("current-edit-message").textContent=e.message;}
+}
+
+async function applyCurrentDance(){
+    if(!currentIsrc)return;
+    try{
+        const dance=document.getElementById("current-dance").value.trim();
+        const alternatives=document.getElementById("current-alternatives").value.split(",").map(x=>x.trim()).filter(Boolean);
+        await sendSongEdit(currentIsrc,{dance,alternatives});
+        await update();await updateLibrary();closeCurrentEdit();
+    }catch(e){document.getElementById("current-edit-message").textContent=e.message;}
+}
+
+async function editLibrarySong(isrc){
+    const row=document.getElementById("edit-row-"+isrc);
+    const bpm=Number(row.querySelector(".lib-bpm").value);
+    const meter=Number(row.querySelector(".lib-meter").value);
+    const dance=row.querySelector(".lib-dance").value.trim();
+    const alternatives=row.querySelector(".lib-alternatives").value.split(",").map(x=>x.trim()).filter(Boolean);
+    try{
+        await sendSongEdit(isrc,{bpm,time_signature:meter,dance,alternatives});
+        await update();await updateLibrary();
+    }catch(e){alert(e.message);}
+}
+
+async function recalcLibrarySong(isrc){
+    const row=document.getElementById("edit-row-"+isrc);
+    const bpm=Number(row.querySelector(".lib-bpm").value);
+    const meter=Number(row.querySelector(".lib-meter").value);
+    try{
+        await sendSongEdit(isrc,{bpm,time_signature:meter,recalculate:true});
+        await update();await updateLibrary();
+    }catch(e){alert(e.message);}
+}
+
+async function updateLibrary(){
+    try{
+        const response=await fetch("/api/songs");const songs=await response.json();const list=document.getElementById("song-list");
+        if(!songs.length){list.innerHTML='<tr><td colspan="6">Noch keine Songs gespeichert.</td></tr>';return;}
+        list.innerHTML=songs.map(s=>{
+            const id=esc(s.isrc);
+            return `<tr>
+                <td>${esc(s.title)}</td><td>${esc(s.artist)}</td><td>${s.bpm??"–"}</td><td>${signature(s.time_signature)}</td><td>${esc(s.dance||"–")}${s.dance_manual?" *":""}</td>
+                <td><button class="secondary" onclick="toggleLibraryEdit('${id}')">Edit</button></td>
             </tr>
-        `).join("");
-
-    } catch (error) {
-        console.error(error);
-    }
+            <tr class="library-edit" id="edit-row-${id}">
+                <td colspan="6">
+                    <div class="form-grid">
+                        <div><label class="field-label">BPM</label><input class="lib-bpm" type="number" min="1" max="400" step="0.1" value="${s.bpm??""}"></div>
+                        <div><label class="field-label">Taktart</label><input class="lib-meter" type="number" min="2" max="12" value="${s.time_signature??4}"></div>
+                    </div>
+                    <label class="field-label">Haupttanz</label><input class="lib-dance" list="dance-options" value="${esc(s.dance||"")}">
+                    <label class="field-label">Alternativen (Komma-getrennt)</label><input class="lib-alternatives" value="${esc((s.dance_alternatives||[]).map(x=>typeof x==="string"?x:x.name).join(", "))}">
+                    <div class="action-row">
+                        <button onclick="recalcLibrarySong('${id}')">Apply & neu berechnen</button>
+                        <button class="secondary" onclick="editLibrarySong('${id}')">Nur Änderungen speichern</button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join("");
+    }catch(e){console.error("Library Fehler:",e);}
 }
 
-function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>"']/g, char => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;"
-    })[char]);
+function toggleLibraryEdit(isrc){
+    const row=document.getElementById("edit-row-"+isrc);
+    row.classList.toggle("open");
 }
 
-update();
-updateLibrary();
+async function runPlaylist(){
+    const input=document.getElementById("playlist-url"),button=document.getElementById("playlist-button"),status=document.getElementById("playlist-status");
+    if(!input.value.trim()){status.textContent="Bitte zuerst einen Spotify-Playlist-Link eingeben.";return;}
+    button.disabled=true;button.textContent="Wird gestartet...";
+    try{
+        const response=await fetch("/api/run-playlist",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url:input.value.trim()})});
+        const data=await response.json();if(!response.ok)throw new Error(data.error||"Start fehlgeschlagen.");status.textContent="Playlist-Analyse wurde gestartet.";
+    }catch(e){status.textContent=e.message;}finally{button.disabled=false;button.textContent="Run Playlist";}
+}
 
-setInterval(update, 3000);
-setInterval(updateLibrary, 10000);
+async function updatePlaylistStatus(){
+    try{
+        const response=await fetch("/api/playlist-status");const d=await response.json();
+        const pct=d.total?d.processed/d.total*100:0;
+        document.getElementById("playlist-status").textContent=d.message;
+        document.getElementById("playlist-progress").style.width=pct+"%";
+        document.getElementById("playlist-progress-text").textContent=`${d.processed||0} / ${d.total||0} Songs verarbeitet · ${d.failed||0} fehlgeschlagen`;
+    }catch(e){console.error(e);}
+}
+
+loadDanceCatalog();update();updateLibrary();updatePlaylistStatus();
+setInterval(update,3000);setInterval(updateLibrary,10000);setInterval(updatePlaylistStatus,2000);
 </script>
 </body>
 </html>
