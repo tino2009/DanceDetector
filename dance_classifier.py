@@ -1,67 +1,50 @@
-"""Heuristische Tanzzuordnung anhand von Tempo, Takt, Energy und Danceability."""
-
+"""Dance classification using tempo and available Musicstax audio features."""
 DANCE_RULES = [
-    {"name": "Salsa", "meter": 4, "min": 85, "max": 125, "ideal": 105, "weight": 1.10, "energy": .78, "danceability": .78},
-    {"name": "Cha-Cha-Cha", "meter": 4, "min": 90, "max": 130, "ideal": 110, "weight": 1.08, "energy": .72, "danceability": .75},
-    {"name": "Discofox", "meter": 4, "min": 95, "max": 145, "ideal": 120, "weight": 1.00, "energy": .70, "danceability": .72},
-    {"name": "Rumba", "meter": 4, "min": 75, "max": 115, "ideal": 95, "weight": .96, "energy": .42, "danceability": .55},
-    {"name": "Tango", "meter": 4, "min": 110, "max": 140, "ideal": 125, "weight": .98, "energy": .60, "danceability": .58},
-    {"name": "Samba", "meter": 4, "min": 90, "max": 120, "ideal": 105, "weight": .95, "energy": .82, "danceability": .78},
-    {"name": "Jive", "meter": 4, "min": 135, "max": 190, "ideal": 165, "weight": .98, "energy": .88, "danceability": .82},
-    {"name": "Quickstep", "meter": 4, "min": 175, "max": 220, "ideal": 200, "weight": .98, "energy": .90, "danceability": .80},
-    {"name": "Slowfox", "meter": 4, "min": 105, "max": 135, "ideal": 120, "weight": .95, "energy": .48, "danceability": .58},
-    {"name": "Langsamer Walzer", "meter": 3, "min": 80, "max": 115, "ideal": 95, "weight": 1.0, "energy": .42, "danceability": .50},
-    {"name": "Wiener Walzer", "meter": 3, "min": 135, "max": 190, "ideal": 165, "weight": 1.0, "energy": .75, "danceability": .65},
+{"name":"Salsa","meter":4,"min":85,"max":125,"ideal":105,"weight":1.10,"energy":.78,"danceability":.82,"valence":.78,"acousticness":.30,"speechiness":.05,"instrumentalness":.35,"liveness":.22,"loudness":-8},
+{"name":"Cha-Cha-Cha","meter":4,"min":90,"max":130,"ideal":110,"weight":1.08,"energy":.72,"danceability":.78,"valence":.75,"acousticness":.35,"speechiness":.05,"instrumentalness":.40,"liveness":.18,"loudness":-9},
+{"name":"Discofox","meter":4,"min":95,"max":145,"ideal":120,"weight":1.00,"energy":.75,"danceability":.78,"valence":.72,"acousticness":.25,"speechiness":.04,"instrumentalness":.25,"liveness":.12,"loudness":-7},
+{"name":"Rumba","meter":4,"min":75,"max":115,"ideal":95,"weight":.96,"energy":.42,"danceability":.48,"valence":.55,"acousticness":.55,"speechiness":.04,"instrumentalness":.35,"liveness":.12,"loudness":-11},
+{"name":"Tango","meter":4,"min":110,"max":140,"ideal":125,"weight":.98,"energy":.60,"danceability":.62,"valence":.48,"acousticness":.45,"speechiness":.04,"instrumentalness":.55,"liveness":.15,"loudness":-9},
+{"name":"Samba","meter":4,"min":90,"max":120,"ideal":105,"weight":.95,"energy":.82,"danceability":.80,"valence":.78,"acousticness":.35,"speechiness":.04,"instrumentalness":.40,"liveness":.20,"loudness":-8},
+{"name":"Jive","meter":4,"min":135,"max":190,"ideal":165,"weight":.98,"energy":.88,"danceability":.82,"valence":.82,"acousticness":.30,"speechiness":.04,"instrumentalness":.35,"liveness":.18,"loudness":-7},
+{"name":"Quickstep","meter":4,"min":175,"max":220,"ideal":200,"weight":.98,"energy":.90,"danceability":.82,"valence":.78,"acousticness":.45,"speechiness":.04,"instrumentalness":.65,"liveness":.15,"loudness":-8},
+{"name":"Slowfox","meter":4,"min":105,"max":135,"ideal":120,"weight":.95,"energy":.48,"danceability":.60,"valence":.55,"acousticness":.50,"speechiness":.04,"instrumentalness":.50,"liveness":.12,"loudness":-11},
+{"name":"Langsamer Walzer","meter":3,"min":80,"max":115,"ideal":95,"weight":1.0,"energy":.42,"danceability":.50,"valence":.55,"acousticness":.55,"speechiness":.04,"instrumentalness":.55,"liveness":.12,"loudness":-12},
+{"name":"Wiener Walzer","meter":3,"min":135,"max":190,"ideal":165,"weight":1.0,"energy":.75,"danceability":.68,"valence":.72,"acousticness":.45,"speechiness":.04,"instrumentalness":.50,"liveness":.15,"loudness":-9},
+{"name":"Bachata","meter":4,"min":105,"max":145,"ideal":125,"weight":1.02,"energy":.58,"danceability":.75,"valence":.68,"acousticness":.48,"speechiness":.05,"instrumentalness":.25,"liveness":.15,"loudness":-10},
 ]
-DANCE_NAMES = [dance["name"] for dance in DANCE_RULES]
-
-
-def _similarity(value, target):
-    if value is None:
-        return None
-    try:
-        return max(0.0, 1.0 - abs(float(value) - target) / 0.65)
-    except (TypeError, ValueError):
-        return None
-
-
-def classify_dance(bpm, time_signature, favorites=None, energy=None, danceability=None):
-    if bpm is None or time_signature is None:
-        return {"best": None, "alternatives": [], "message": "BPM oder Takt nicht verfügbar."}
-    try:
-        bpm, time_signature = float(bpm), int(time_signature)
-    except (TypeError, ValueError):
-        return {"best": None, "alternatives": [], "message": "BPM oder Takt ist ungültig."}
-    if bpm <= 0:
-        return {"best": None, "alternatives": [], "message": "BPM muss größer als 0 sein."}
-
-    favorites = set(favorites or [])
-    candidates = [bpm, bpm / 2, bpm * 2]
-    results = []
+DANCE_NAMES=[d["name"] for d in DANCE_RULES]
+FEATURES=("energy","danceability","valence","acousticness","speechiness","instrumentalness","liveness","loudness")
+DEFAULT_WEIGHTS={"bpm":55,"energy":10,"danceability":10,"valence":5,"acousticness":5,"speechiness":3,"instrumentalness":5,"liveness":2,"loudness":5}
+def _similarity(value,target,scale=.65):
+    if value is None:return None
+    try:return max(0.0,1.0-abs(float(value)-target)/scale)
+    except (TypeError,ValueError):return None
+def classify_dance(bpm,time_signature,favorites=None,weights=None,**features):
+    if bpm is None or time_signature is None:return {"best":None,"alternatives":[],"message":"BPM oder Takt nicht verfügbar."}
+    try:bpm,time_signature=float(bpm),int(time_signature)
+    except (TypeError,ValueError):return {"best":None,"alternatives":[],"message":"BPM oder Takt ist ungültig."}
+    if bpm<=0:return {"best":None,"alternatives":[],"message":"BPM muss größer als 0 sein."}
+    favorites=set(favorites or []); weights={**DEFAULT_WEIGHTS,**(weights or {})}
+    results=[]
     for dance in DANCE_RULES:
-        if dance["meter"] != time_signature:
-            continue
-        candidate = next((v for v in sorted(candidates, key=lambda x: abs(x-dance["ideal"])) if dance["min"] <= v <= dance["max"]), None)
-        if candidate is None:
-            continue
-        half_range = max(dance["ideal"] - dance["min"], dance["max"] - dance["ideal"], 1)
-        tempo_score = max(0.0, 1.0 - abs(candidate-dance["ideal"]) / half_range)
-        components = [(0.60, tempo_score)]
-        energy_sim = _similarity(energy, dance["energy"])
-        dance_sim = _similarity(danceability, dance["danceability"])
-        if energy_sim is not None:
-            components.append((0.28, energy_sim))
-        if dance_sim is not None:
-            components.append((0.12, dance_sim))
-        weight_sum = sum(w for w, _ in components)
-        normalized = sum(w*v for w, v in components) / weight_sum
-        score = min(99.0, (55 + 45 * normalized) * dance["weight"])
-        results.append({"name": dance["name"], "score": round(score, 1), "matched_bpm": round(candidate, 1), "favorite": dance["name"] in favorites})
-
-    results.sort(key=lambda item: item["score"], reverse=True)
-    eligible = [item for item in results if item["favorite"] and item["score"] >= 90]
-    if eligible:
-        preferred = max(eligible, key=lambda item: item["score"])
-        results.remove(preferred)
-        results.insert(0, preferred)
-    return {"best": results[0] if results else None, "alternatives": results[1:] if results else [], "message": None if results else "Kein passender Tanz gefunden."}
+        if dance["meter"]!=time_signature:continue
+        candidates=[bpm,bpm/2,bpm*2]
+        candidate=next((v for v in sorted(candidates,key=lambda x:abs(x-dance["ideal"])) if dance["min"]<=v<=dance["max"]),None)
+        if candidate is None:continue
+        span=max(dance["ideal"]-dance["min"],dance["max"]-dance["ideal"],1)
+        components=[(float(weights.get("bpm",0)),max(0.0,1-abs(candidate-dance["ideal"])/span))]
+        for feature in FEATURES:
+            value=features.get(feature)
+            if value is None:continue
+            scale=25.0 if feature=="loudness" else (.20 if feature=="speechiness" else .65)
+            components.append((float(weights.get(feature,0)),_similarity(value,dance[feature],scale)))
+        total=sum(w for w,_ in components if w>0)
+        normalized=sum(w*v for w,v in components if w>0)/total if total else 0
+        score=min(99.0,(55+45*normalized)*dance["weight"])
+        results.append({"name":dance["name"],"score":round(score,1),"matched_bpm":round(candidate,1),"favorite":dance["name"] in favorites})
+    results.sort(key=lambda x:x["score"],reverse=True)
+    preferred=[x for x in results if x["favorite"] and x["score"]>=90]
+    if preferred:
+        item=max(preferred,key=lambda x:x["score"]);results.remove(item);results.insert(0,item)
+    return {"best":results[0] if results else None,"alternatives":results[1:],"message":None if results else "Kein passender Tanz gefunden."}

@@ -1,4 +1,12 @@
+# Virtuelle Python-Umgebung
 .venv/
+
+# Musicstax Browser-Profil
+.musicstax-browser-profile/
+
+# Python Cache
 __pycache__/
 *.pyc
+
+# Lokale Umgebungsvariablen
 .env

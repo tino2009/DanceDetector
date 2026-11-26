@@ -14,17 +14,28 @@
 .dance-section{margin-top:30px;padding:42px 24px;background:linear-gradient(125deg,#1a3043,#1d2943 55%,#292342);border:1px solid #36536a;border-radius:20px;text-align:center;position:relative;overflow:hidden}
 .dance-section:before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;background:rgba(98,214,197,.08);filter:blur(5px);top:-150px;right:-50px;pointer-events:none}
 .dance-section .label{color:#a7c9d2}#best-dance{color:#e7fff9;font-size:clamp(42px,6vw,64px);font-weight:800;overflow-wrap:anywhere;letter-spacing:-1.5px;text-shadow:0 5px 28px rgba(98,214,197,.15)}
-.dance-description{color:#b2c5d4;font-size:14px;margin-top:12px}.alternatives-section{margin-top:28px}.alternatives{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
+.dance-description{color:#b2c5d4;font-size:14px;margin-top:12px}.alternatives-section{margin-top:28px;margin-bottom:68px}.alternatives{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}
 .alternative{background:var(--panel2);border:1px solid #2b3b55;border-radius:14px;padding:16px;color:#e1eafa;font-size:14px;font-weight:650;transition:transform .18s,border-color .18s}.alternative:hover{transform:translateY(-2px);border-color:#54728e}
-.alternative-score{color:var(--accent);font-size:12px;margin-top:8px;font-weight:600}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:26px}
+.alternative-score{color:var(--accent);font-size:12px;margin-top:8px;font-weight:600}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:0}
 .metric{background:var(--panel2);border:1px solid #283951;border-radius:15px;padding:20px}.metric-value{font-size:32px;font-weight:750;color:var(--accent)}
 .metric-label,.small{color:var(--muted);font-size:11px;margin-top:7px;letter-spacing:.3px}.feature-meter{height:5px;background:#2a3950;border-radius:9px;margin-top:12px;overflow:hidden}.feature-meter span{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:9px}
+
+/* Beamer-/Präsentationsmodus: nur Tänze anzeigen */
+body.presentation-mode .metrics,
+body.presentation-mode #confidence,
+body.presentation-mode .dance-description,
+body.presentation-mode #edit-button,
+body.presentation-mode .alternative-score,
+body.presentation-mode #current-edit {display:none !important}
+.details-toggle{display:flex;align-items:center;gap:10px;margin-top:18px;padding:12px 14px;background:var(--panel2);border:1px solid #283951;border-radius:12px;color:var(--muted);font-size:12px}
+.details-toggle input{width:auto;margin:0;accent-color:var(--accent)}
+
 input,select{width:100%;padding:13px;border:1px solid #35445d;border-radius:10px;background:#0d1525;color:var(--text);font-size:15px;outline:none;margin:6px 0 12px}input:focus,select:focus{border-color:var(--accent)}
 button{padding:11px 15px;border:0;border-radius:10px;background:var(--accent);color:#09201f;font-size:13px;font-weight:750;cursor:pointer;transition:filter .2s,transform .2s}button:hover{filter:brightness(1.08);transform:translateY(-1px)}button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#34445e;color:#e7efff}.secondary:hover{background:#405572}
 .action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.action-row button{width:auto}.progress{height:8px;background:#293750;border-radius:20px;overflow:hidden;margin:15px 0}.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .3s}.playlist-status{color:#b2bfd3;font-size:13px;margin-top:16px}
 table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:13px 9px;border-bottom:1px solid #29364b;vertical-align:middle}th{color:var(--muted);font-size:11px;letter-spacing:1px}td{font-size:13px}
 .edit-panel{display:none;margin-top:20px;padding:22px;background:#0d1525;border:1px solid #30425d;border-radius:14px}.edit-panel.open{display:block}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field-label{display:block;color:#b2bfd3;font-size:12px;margin-top:8px}
-#edit-message{font-size:13px;margin-top:10px;color:var(--accent)}.favorite-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:11px}.dance-row{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid #2b3b55;border-radius:12px;padding:13px}.dance-info{flex:1;min-width:0}.dance-name{font-weight:700}.dance-meta{font-size:11px;color:var(--muted);margin-top:5px}.heart{font-size:22px;padding:4px 9px;background:transparent;color:#8190a8}.heart.active{color:var(--pink);background:transparent}.library-edit{display:none;background:#0d1525;padding:12px;border-radius:10px}.library-edit.open{display:table-row}
+#edit-message{font-size:13px;margin-top:10px;color:var(--accent)}.favorite-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:11px}.dance-row{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid #2b3b55;border-radius:12px;padding:13px}.dance-info{flex:1;min-width:0}.dance-name{font-weight:700}.dance-meta{font-size:11px;color:var(--muted);margin-top:5px}.heart{font-size:22px;padding:4px 9px;background:transparent;color:#8190a8}.heart.active{color:var(--pink);background:transparent}.dance-edit{padding:7px 10px;background:#34445e;color:#e7efff}.library-edit{display:none;background:#0d1525;padding:12px;border-radius:10px}.library-edit.open{display:table-row}
 @media(max-width:760px){.metrics{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){body{padding:20px 12px}.metrics,.form-grid{grid-template-columns:1fr 1fr}#song-title{font-size:29px}.card{padding:20px}.dance-section{padding:32px 15px}.metric{padding:15px}.metric-value{font-size:28px}}
 </style>
 </head>
@@ -52,6 +63,10 @@ table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:13px 9px
         <div class="metric"><div class="metric-value" id="signature">–</div><div class="metric-label">TAKTART</div></div>
         <div class="metric"><div class="metric-value" id="energy">–</div><div class="metric-label">ENERGY</div><div class="feature-meter"><span id="energy-bar" style="width:0%"></span></div></div>
         <div class="metric"><div class="metric-value" id="danceability">–</div><div class="metric-label">DANCEABILITY</div><div class="feature-meter"><span id="danceability-bar" style="width:0%"></span></div></div>
+    </div>
+    <div class="details-toggle">
+        <input id="details-toggle" type="checkbox" checked onchange="togglePresentationDetails(this.checked)">
+        <label for="details-toggle">Analyse-Details anzeigen (BPM, Taktart, Energy, Danceability)</label>
     </div>
     <div class="small" id="confidence" style="margin-top:18px"></div>
 
@@ -91,12 +106,73 @@ table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:13px 9px
     <div><strong id="usage">– / 1.000</strong><span class="small" id="remaining"></span></div>
     <div class="progress"><div class="progress-bar" id="progress"></div></div>
     <div class="small" id="reset"></div>
+    <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
+        <label class="field-label" style="display:flex;align-items:center;gap:10px">
+            <input id="musicstax-toggle" type="checkbox" style="width:auto;margin:0" onchange="toggleMusicstax(this.checked)">
+            Musicstax aktivieren
+        </label>
+        <div class="small" id="provider-message">
+            MeloData ist aktiv. Musicstax kann ausgewählt werden, benötigt aber noch offiziellen API-Zugang.
+        </div>
+        <label class="field-label" style="display:flex;align-items:center;gap:10px;margin-top:12px">
+            <input id="database-cache-toggle" type="checkbox" style="width:auto;margin:0" onchange="toggleDatabaseCache(this.checked)">
+            Datenbank zuerst verwenden
+        </label>
+        <div class="small" id="database-cache-message">Wenn aktiviert, wird zuerst nach Titel und Interpret in der lokalen Datenbank gesucht. Nur bei fehlendem Eintrag wird Musicstax oder MeloData aufgerufen.</div>
+    </div>
 </div>
 
 <div class="card">
     <div class="label">TANZARTEN & FAVORITEN</div>
     <p class="small">Favorisierte Tänze werden bei einem Match ab 90 % als Haupttanz bevorzugt.</p>
     <div id="dance-catalog" class="favorite-list">Tänze werden geladen ...</div>
+    <div class="edit-panel" id="dance-rule-editor">
+        <div class="label" id="dance-rule-title">TANZART BEARBEITEN</div>
+        <div class="form-grid" id="dance-rule-fields"></div>
+        <div class="action-row">
+            <button onclick="saveDanceRule()">Speichern</button>
+            <button class="secondary" onclick="closeDanceRuleEditor()">Schließen</button>
+        </div>
+        <div id="dance-rule-message" class="small"></div>
+    </div>
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--line)">
+        <div class="label">BERECHNUNGSGEWICHTUNG</div>
+        <p class="small">Lege fest, wie stark die einzelnen Musicstax-Messwerte die Tanzbewertung beeinflussen. Fehlende Messwerte werden automatisch ausgelassen; die übrigen Gewichte werden anteilig normalisiert. Die Summe muss 100 % ergeben.</p>
+        <div class="form-grid" id="weight-inputs">
+            <div><label class="field-label">Tempo / BPM (%)</label><input id="weight-bpm" type="number" min="0" max="100" step="1"></div>
+            <div><label class="field-label">Energy (%)</label><input id="weight-energy" type="number" min="0" max="100" step="1"></div>
+            <div><label class="field-label">Danceability (%)</label><input id="weight-danceability" type="number" min="0" max="100" step="1"></div>
+            <div><label class="field-label">Valence (%)</label><input id="weight-valence" type="number" min="0" max="100" step="1"></div>
+            <div><label class="field-label">Acousticness (%)</label><input id="weight-acousticness" type="number" min="0" max="100" step="1"></div>
+            <div><label class="field-label">Speechiness (%)</label><input id="weight-speechiness" type="number" min="0" max="100" step="1"></div>
+            <div><label class="field-label">Instrumentalness (%)</label><input id="weight-instrumentalness" type="number" min="0" max="100" step="1"></div>
+            <div><label class="field-label">Liveness (%)</label><input id="weight-liveness" type="number" min="0" max="100" step="1"></div>
+            <div><label class="field-label">Loudness (%)</label><input id="weight-loudness" type="number" min="0" max="100" step="1"></div>
+        </div>
+        <div class="small">Taktart bleibt ein festes Filterkriterium. Tonart wird angezeigt, aber nicht gewichtet, da sie allein keinen bestimmten Tanz kennzeichnet.</div>
+        <div class="small" id="weight-total">Summe: 100 %</div>
+        <div class="action-row"><button onclick="saveWeights()">Gewichtung übernehmen</button><button class="secondary" onclick="resetWeights()">Standardgewichtung laden</button></div>
+        <div class="small" id="weight-message"></div>
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="label">MANUAL SONG ENTRY</div>
+    <h2 style="margin-top:0">Song manuell hinzufügen</h2>
+    <p class="small">Wenn MeloData einen Song nicht findet, kannst du ihn hier selbst eintragen. Die Angaben werden lokal gespeichert und können anschließend über „Edit“ geändert werden.</p>
+    <div class="form-grid">
+        <div><label class="field-label">Songtitel</label><input id="manual-title" placeholder="z. B. Let Me Love You (Roma 24 BPM)"></div>
+        <div><label class="field-label">Interpret</label><input id="manual-artist" placeholder="z. B. DJ / Künstler"></div>
+        <div><label class="field-label">BPM</label><input id="manual-bpm" type="number" min="1" max="400" step="0.1" placeholder="z. B. 120"></div>
+        <div><label class="field-label">Taktart (Zähler)</label><input id="manual-meter" type="number" min="2" max="12" step="1" value="4"></div>
+        <div><label class="field-label">Energy (optional, 0–1)</label><input id="manual-energy" type="number" min="0" max="1" step="0.01" placeholder="z. B. 0.75"></div>
+        <div><label class="field-label">Danceability (optional, 0–1)</label><input id="manual-danceability" type="number" min="0" max="1" step="0.01" placeholder="z. B. 0.80"></div>
+    </div>
+    <label class="field-label">Tanz (optional – sonst automatisch berechnen)</label>
+    <input id="manual-dance" list="dance-options" placeholder="z. B. Salsa">
+    <div class="action-row"><button onclick="addManualSong()">Song speichern</button></div>
+    <div class="small" id="manual-song-message"></div>
 </div>
 
 <div class="card">
@@ -107,6 +183,14 @@ table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:13px 9px
             <thead><tr><th>SONG</th><th>ARTIST</th><th>BPM</th><th>TAKT</th><th>TANZ</th><th></th></tr></thead>
             <tbody id="song-list"><tr><td colspan="6">Noch keine Songs gespeichert.</td></tr></tbody>
         </table>
+    </div>
+    <div style="margin-top:22px;padding-top:18px;border-top:1px solid var(--line)">
+        <div class="label">GESPEICHERTE SONGS AKTUALISIEREN</div>
+        <p class="small">Alle Songs der Bibliothek werden der Reihe nach erneut über die aktive Analysequelle abgefragt. Manuell eingetragene Songs werden übersprungen; manuelle BPM-, Takt- und Tanzkorrekturen bleiben erhalten.</p>
+        <button id="reanalyze-button" onclick="reanalyzeLibrary()" style="width:100%">Alle gespeicherten Songs erneut analysieren</button>
+        <div class="playlist-status" id="reanalyze-status">Noch nicht gestartet.</div>
+        <div class="progress"><div class="progress-bar" id="reanalyze-progress"></div></div>
+        <div class="small" id="reanalyze-progress-text"></div>
     </div>
 </div>
 </div>
@@ -122,6 +206,35 @@ function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;"
 function signature(value){return value==null?"–":value+"/4";}
 function currentDanceNames(){return danceCatalog.map(d=>d.name);}
 
+const weightKeys=["bpm","energy","danceability","valence","acousticness","speechiness","instrumentalness","liveness","loudness"];
+const defaultWeights={bpm:55,energy:10,danceability:10,valence:5,acousticness:5,speechiness:3,instrumentalness:5,liveness:2,loudness:5};
+async function loadWeights(){
+    try{
+        const r=await fetch("/api/classifier-weights");const w=await r.json();
+        weightKeys.forEach(k=>document.getElementById("weight-"+k).value=w[k]??defaultWeights[k]);
+        updateWeightTotal();
+    }catch(e){console.error("Gewichtungen konnten nicht geladen werden",e);}
+}
+function updateWeightTotal(){
+    const total=weightKeys.reduce((sum,k)=>sum+(Number(document.getElementById("weight-"+k).value)||0),0);
+    const el=document.getElementById("weight-total");el.textContent=`Summe: ${total.toFixed(0)} %`;
+    el.style.color=Math.abs(total-100)<0.001?"var(--accent)":"#ff8798";
+}
+async function saveWeights(){
+    const payload=Object.fromEntries(weightKeys.map(k=>[k,Number(document.getElementById("weight-"+k).value)||0]));
+    const message=document.getElementById("weight-message");
+    try{
+        const r=await fetch("/api/classifier-weights",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+        const d=await r.json();if(!r.ok)throw new Error(d.error||"Speichern fehlgeschlagen.");
+        message.textContent="Gewichtung gespeichert und angewendet.";message.style.color="var(--accent)";
+        updateWeightTotal();await update();await updateLibrary();
+    }catch(e){message.textContent=e.message;message.style.color="#ff8798";}
+}
+function resetWeights(){
+    weightKeys.forEach(k=>document.getElementById("weight-"+k).value=defaultWeights[k]);
+    updateWeightTotal();saveWeights();
+}
+
 async function loadDanceCatalog(){
     const response=await fetch("/api/dance-options");
     danceCatalog=await response.json();
@@ -136,12 +249,48 @@ function renderDanceCatalog(){
         return `<div class="dance-row">
             <div class="dance-info">
                 <div class="dance-name">${esc(d.name)}</div>
-                <div class="dance-meta">${d.min_bpm}–${d.max_bpm} BPM · ${d.meter}/4-Takt · Ideal ${d.ideal_bpm} BPM</div>
+                <div class="dance-meta">${d.min}–${d.max} BPM · ${d.meter}/4-Takt · Ideal ${d.ideal} BPM</div>
             </div>
+            <button class="dance-edit" onclick="openDanceRuleEditor('${esc(d.name)}')">Edit</button>
             <button class="heart ${active?"active":""}" title="${active?"Favorit entfernen":"Als Favorit markieren"}"
                 onclick="toggleFavorite('${esc(d.name)}',${!active})">${active?"♥":"♡"}</button>
         </div>`;
     }).join("");
+}
+
+let editingDanceName=null;
+const danceRuleFields=[
+    ["meter","Taktart / Zähler",2,12,1], ["min","Tempo Minimum (BPM)",1,400,0.1],
+    ["max","Tempo Maximum (BPM)",1,400,0.1], ["ideal","Ideales Tempo (BPM)",1,400,0.1],
+    ["weight","Tanzfaktor",0.1,3,0.01], ["energy","Energy Optimum",0,1,0.01],
+    ["danceability","Danceability Optimum",0,1,0.01], ["valence","Valence Optimum",0,1,0.01],
+    ["acousticness","Acousticness Optimum",0,1,0.01], ["speechiness","Speechiness Optimum",0,1,0.01],
+    ["instrumentalness","Instrumentalness Optimum",0,1,0.01], ["liveness","Liveness Optimum",0,1,0.01],
+    ["loudness","Loudness Optimum (dB)",-60,0,0.1]
+];
+function openDanceRuleEditor(name){
+    const dance=danceCatalog.find(item=>item.name===name);if(!dance)return;
+    editingDanceName=name;
+    document.getElementById("dance-rule-title").textContent=`${name.toUpperCase()} BEARBEITEN`;
+    document.getElementById("dance-rule-fields").innerHTML=danceRuleFields.map(([key,label,min,max,step])=>
+        `<div><label class="field-label" for="dance-rule-${key}">${label}</label><input id="dance-rule-${key}" type="number" min="${min}" max="${max}" step="${step}" value="${dance[key]??0}"></div>`
+    ).join("");
+    document.getElementById("dance-rule-message").textContent="";
+    document.getElementById("dance-rule-editor").classList.add("open");
+    document.getElementById("dance-rule-editor").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function closeDanceRuleEditor(){document.getElementById("dance-rule-editor").classList.remove("open");editingDanceName=null;}
+async function saveDanceRule(){
+    if(!editingDanceName)return;
+    const payload=Object.fromEntries(danceRuleFields.map(([key])=>[key,Number(document.getElementById("dance-rule-"+key).value)]));
+    const message=document.getElementById("dance-rule-message");
+    try{
+        const response=await fetch(`/api/dance-options/${encodeURIComponent(editingDanceName)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+        const data=await response.json();if(!response.ok)throw new Error(data.error||"Speichern fehlgeschlagen.");
+        message.textContent="Tanzprofil gespeichert und auf die automatischen Zuordnungen angewendet.";
+        await loadDanceCatalog();await update();await updateLibrary();
+        closeDanceRuleEditor();
+    }catch(error){message.textContent=error.message;message.style.color="#ff8798";}
 }
 
 async function toggleFavorite(name,favorite){
@@ -150,6 +299,19 @@ async function toggleFavorite(name,favorite){
     if(!response.ok){alert(data.error||"Favorit konnte nicht gespeichert werden.");return;}
     await update();
     renderDanceCatalog();
+}
+
+function togglePresentationDetails(show){
+    document.body.classList.toggle("presentation-mode",!show);
+    try{localStorage.setItem("danceDetectorShowDetails",show?"1":"0");}catch(e){}
+}
+
+function loadPresentationDetails(){
+    let show=true;
+    try{const saved=localStorage.getItem("danceDetectorShowDetails");if(saved!==null)show=saved==="1";}catch(e){}
+    const toggle=document.getElementById("details-toggle");
+    toggle.checked=show;
+    togglePresentationDetails(show);
 }
 
 function renderDance(dance){
@@ -257,6 +419,28 @@ async function recalcLibrarySong(isrc){
     }catch(e){alert(e.message);}
 }
 
+
+async function addManualSong(){
+    const message=document.getElementById("manual-song-message");
+    const payload={
+        title:document.getElementById("manual-title").value.trim(),
+        artist:document.getElementById("manual-artist").value.trim(),
+        bpm:document.getElementById("manual-bpm").value,
+        time_signature:document.getElementById("manual-meter").value,
+        energy:document.getElementById("manual-energy").value,
+        danceability:document.getElementById("manual-danceability").value,
+        dance:document.getElementById("manual-dance").value.trim()
+    };
+    try{
+        const response=await fetch("/api/song/manual",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+        const data=await response.json();if(!response.ok)throw new Error(data.error||"Speichern fehlgeschlagen.");
+        message.textContent="Song wurde gespeichert. Du kannst ihn jetzt in der Songbibliothek bearbeiten.";
+        ["manual-title","manual-artist","manual-bpm","manual-energy","manual-danceability","manual-dance"].forEach(id=>document.getElementById(id).value="");
+        document.getElementById("manual-meter").value="4";
+        await updateLibrary();await update();
+    }catch(e){message.textContent=e.message;}
+}
+
 async function updateLibrary(){
     try{
         const response=await fetch("/api/songs");const songs=await response.json();const list=document.getElementById("song-list");
@@ -310,8 +494,96 @@ async function updatePlaylistStatus(){
     }catch(e){console.error(e);}
 }
 
-loadDanceCatalog();update();updateLibrary();updatePlaylistStatus();
-setInterval(update,3000);setInterval(updateLibrary,10000);setInterval(updatePlaylistStatus,2000);
+async function loadDatabaseCache(){
+    try{
+        const response=await fetch("/api/database-cache");
+        const data=await response.json();
+        document.getElementById("database-cache-toggle").checked=!!data.enabled;
+    }catch(error){console.error("Datenbank-Einstellung konnte nicht geladen werden:",error);}
+}
+
+async function toggleDatabaseCache(enabled){
+    const message=document.getElementById("database-cache-message");
+    try{
+        const response=await fetch("/api/database-cache",{
+            method:"POST",headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({enabled})
+        });
+        const data=await response.json();
+        if(!response.ok)throw new Error(data.error||"Einstellung konnte nicht gespeichert werden.");
+        message.textContent=data.message||"Einstellung gespeichert.";
+    }catch(error){
+        message.textContent=error.message;
+        await loadDatabaseCache();
+    }
+}
+
+async function loadAnalysisProvider(){
+    try{
+        const response=await fetch("/api/analysis-provider");
+        const data=await response.json();
+        document.getElementById("musicstax-toggle").checked=data.provider==="musicstax";
+        document.getElementById("provider-message").textContent=data.message||"";
+    }catch(error){console.error("Analysequelle konnte nicht geladen werden:",error);}
+}
+
+async function toggleMusicstax(enabled){
+    const message=document.getElementById("provider-message");
+    try{
+        const response=await fetch("/api/analysis-provider",{
+            method:"POST",headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({provider:enabled?"musicstax":"melodata"})
+        });
+        const data=await response.json();
+        if(!response.ok)throw new Error(data.error||"Einstellung konnte nicht gespeichert werden.");
+        message.textContent=data.message||"";
+    }catch(error){
+        message.textContent=error.message;
+        await loadAnalysisProvider();
+    }
+}
+
+async function reanalyzeLibrary(){
+    const button=document.getElementById("reanalyze-button");
+    const status=document.getElementById("reanalyze-status");
+    try{
+        button.disabled=true;
+        const response=await fetch("/api/reanalyze-library",{method:"POST"});
+        const data=await response.json();
+        if(!response.ok)throw new Error(data.error||"Neuanalyse konnte nicht gestartet werden.");
+        status.textContent=data.message||"Neuanalyse gestartet.";
+        pollReanalysis();
+    }catch(error){
+        status.textContent=error.message;
+        button.disabled=false;
+    }
+}
+
+async function pollReanalysis(){
+    try{
+        const response=await fetch("/api/reanalyze-library/status");
+        const data=await response.json();
+        const percent=data.total?Math.round(data.processed/data.total*100):0;
+        document.getElementById("reanalyze-progress").style.width=percent+"%";
+        document.getElementById("reanalyze-status").textContent=data.message||"";
+        document.getElementById("reanalyze-progress-text").textContent=
+            `${data.processed||0}/${data.total||0} verarbeitet · ${data.failed||0} fehlgeschlagen · ${data.skipped||0} übersprungen`;
+        if(data.running){
+            setTimeout(pollReanalysis,1000);
+        }else{
+            document.getElementById("reanalyze-button").disabled=false;
+            await updateLibrary();
+            await update();
+        }
+    }catch(error){
+        document.getElementById("reanalyze-status").textContent=error.message;
+        document.getElementById("reanalyze-button").disabled=false;
+    }
+}
+
+weightKeys.forEach(key=>document.getElementById("weight-"+key).addEventListener("input",updateWeightTotal));
+loadPresentationDetails();loadWeights();loadAnalysisProvider();loadDatabaseCache();loadDanceCatalog();update();updateLibrary();updatePlaylistStatus();
+setInterval(update,1000);setInterval(updateLibrary,10000);setInterval(updatePlaylistStatus,2000);
 </script>
 </body>
 </html>

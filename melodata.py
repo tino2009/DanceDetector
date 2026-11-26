@@ -84,10 +84,11 @@ def get_features(isrc):
     raise RuntimeError("Analyse fehlgeschlagen.")
 
 
-def analyze_song(title, artist):
+def analyze_song(title, artist, force_refresh=False):
     isrc = resolve_song(title, artist)
     cached = database.get_song(isrc)
-    if (cached and cached.get("bpm") is not None
+    if (not force_refresh and cached and cached.get("bpm") is not None
+            and cached.get("time_signature") is not None
             and cached.get("energy") is not None
             and cached.get("danceability") is not None):
         return {**cached, "cached": True}
