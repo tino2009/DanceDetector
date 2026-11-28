@@ -135,25 +135,7 @@ table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:13px 9px
         </div>
         <div id="dance-rule-message" class="small"></div>
     </div>
-    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--line)">
-        <div class="label">BERECHNUNGSGEWICHTUNG</div>
-        <p class="small">Lege fest, wie stark die einzelnen Musicstax-Messwerte die Tanzbewertung beeinflussen. Fehlende Messwerte werden automatisch ausgelassen; die übrigen Gewichte werden anteilig normalisiert. Die Summe muss 100 % ergeben.</p>
-        <div class="form-grid" id="weight-inputs">
-            <div><label class="field-label">Tempo / BPM (%)</label><input id="weight-bpm" type="number" min="0" max="100" step="1"></div>
-            <div><label class="field-label">Energy (%)</label><input id="weight-energy" type="number" min="0" max="100" step="1"></div>
-            <div><label class="field-label">Danceability (%)</label><input id="weight-danceability" type="number" min="0" max="100" step="1"></div>
-            <div><label class="field-label">Valence (%)</label><input id="weight-valence" type="number" min="0" max="100" step="1"></div>
-            <div><label class="field-label">Acousticness (%)</label><input id="weight-acousticness" type="number" min="0" max="100" step="1"></div>
-            <div><label class="field-label">Speechiness (%)</label><input id="weight-speechiness" type="number" min="0" max="100" step="1"></div>
-            <div><label class="field-label">Instrumentalness (%)</label><input id="weight-instrumentalness" type="number" min="0" max="100" step="1"></div>
-            <div><label class="field-label">Liveness (%)</label><input id="weight-liveness" type="number" min="0" max="100" step="1"></div>
-            <div><label class="field-label">Loudness (%)</label><input id="weight-loudness" type="number" min="0" max="100" step="1"></div>
-        </div>
-        <div class="small">Taktart bleibt ein festes Filterkriterium. Tonart wird angezeigt, aber nicht gewichtet, da sie allein keinen bestimmten Tanz kennzeichnet.</div>
-        <div class="small" id="weight-total">Summe: 100 %</div>
-        <div class="action-row"><button onclick="saveWeights()">Gewichtung übernehmen</button><button class="secondary" onclick="resetWeights()">Standardgewichtung laden</button></div>
-        <div class="small" id="weight-message"></div>
-    </div>
+
 </div>
 
 
@@ -206,34 +188,6 @@ function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;"
 function signature(value){return value==null?"–":value+"/4";}
 function currentDanceNames(){return danceCatalog.map(d=>d.name);}
 
-const weightKeys=["bpm","energy","danceability","valence","acousticness","speechiness","instrumentalness","liveness","loudness"];
-const defaultWeights={bpm:55,energy:10,danceability:10,valence:5,acousticness:5,speechiness:3,instrumentalness:5,liveness:2,loudness:5};
-async function loadWeights(){
-    try{
-        const r=await fetch("/api/classifier-weights");const w=await r.json();
-        weightKeys.forEach(k=>document.getElementById("weight-"+k).value=w[k]??defaultWeights[k]);
-        updateWeightTotal();
-    }catch(e){console.error("Gewichtungen konnten nicht geladen werden",e);}
-}
-function updateWeightTotal(){
-    const total=weightKeys.reduce((sum,k)=>sum+(Number(document.getElementById("weight-"+k).value)||0),0);
-    const el=document.getElementById("weight-total");el.textContent=`Summe: ${total.toFixed(0)} %`;
-    el.style.color=Math.abs(total-100)<0.001?"var(--accent)":"#ff8798";
-}
-async function saveWeights(){
-    const payload=Object.fromEntries(weightKeys.map(k=>[k,Number(document.getElementById("weight-"+k).value)||0]));
-    const message=document.getElementById("weight-message");
-    try{
-        const r=await fetch("/api/classifier-weights",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-        const d=await r.json();if(!r.ok)throw new Error(d.error||"Speichern fehlgeschlagen.");
-        message.textContent="Gewichtung gespeichert und angewendet.";message.style.color="var(--accent)";
-        updateWeightTotal();await update();await updateLibrary();
-    }catch(e){message.textContent=e.message;message.style.color="#ff8798";}
-}
-function resetWeights(){
-    weightKeys.forEach(k=>document.getElementById("weight-"+k).value=defaultWeights[k]);
-    updateWeightTotal();saveWeights();
-}
 
 async function loadDanceCatalog(){
     const response=await fetch("/api/dance-options");
@@ -581,9 +535,83 @@ async function pollReanalysis(){
     }
 }
 
-weightKeys.forEach(key=>document.getElementById("weight-"+key).addEventListener("input",updateWeightTotal));
-loadPresentationDetails();loadWeights();loadAnalysisProvider();loadDatabaseCache();loadDanceCatalog();update();updateLibrary();updatePlaylistStatus();
+loadPresentationDetails();loadAnalysisProvider();loadDatabaseCache();loadDanceCatalog();update();updateLibrary();updatePlaylistStatus();
 setInterval(update,1000);setInterval(updateLibrary,10000);setInterval(updatePlaylistStatus,2000);
 </script>
-</body>
-</html>
+
+<section class="panel" id="audio-capture-panel" style="margin-top:24px">
+  <h2>Live-Audioanalyse (Systemausgang)</h2>
+  <p class="muted">Analysiert den ausgewählten Lautsprecher-/Kopfhörerausgang direkt per Loopback – nicht das Mikrofon. Bei einem neuen Spotify-Song werden die bisherigen Live-Messwerte verworfen.</p>
+  <label for="audio-device">Audioausgang</label>
+  <select id="audio-device" style="max-width:100%"><option value="">Audioausgänge werden geladen …</option></select>
+  <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px">
+    <label style="display:flex;gap:10px;align-items:center;cursor:pointer">
+      <input id="audio-enabled" type="checkbox" style="width:22px;height:22px;margin:0;accent-color:var(--accent)" onchange="toggleAudioAnalysis(this.checked)">
+      <strong>Audioanalyse aktivieren</strong>
+    </label>
+    <span id="audio-status" class="muted">Nicht aktiv</span>
+  </div>
+  <div id="audio-live-features" class="muted" style="margin-top:12px">Noch keine Live-Daten.</div>
+  <div id="audio-live-dance" style="margin-top:8px"></div>
+</section>
+<section class="panel" style="margin-top:16px">
+  <h2>Klassifikationsgewichtung</h2>
+  <p class="muted">Vier verständliche Regler. Rhythmus fasst die intern berechneten Rhythmus- und Klangmerkmale zusammen. Die Gewichtungen werden beim Speichern auf 100 % normiert.</p>
+  <div id="group-weights" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px"></div>
+  <p>Summe: <strong id="group-weight-total">100 %</strong></p>
+  <button onclick="saveGroupWeights()">Gewichtungen speichern</button>
+  <button class="secondary" onclick="resetGroupWeights()">Zurücksetzen</button>
+  <span id="group-weight-message"></span>
+</section>
+<script>
+const groupNames={bpm:"Beats per Minute",energy:"Energy",danceability:"Danceability",rhythm:"Rhythmus & Klang"};
+let groupWeights={bpm:55,energy:15,danceability:15,rhythm:15};
+async function loadAudioDevices(){
+ const status=document.getElementById("audio-status"),sel=document.getElementById("audio-device");
+ try{
+  const r=await fetch("/api/audio/devices"); if(!r.ok) throw new Error("HTTP "+r.status);
+  const d=await r.json(); sel.innerHTML="";
+  (d.devices||[]).forEach(x=>{const o=document.createElement("option");o.value=x.id;o.textContent=x.name;sel.appendChild(o)});
+  if(d.saved_device)sel.value=d.saved_device; else if(d.default_device)sel.value=d.default_device;
+  if(!d.devices?.length){const o=document.createElement("option");o.value="";o.textContent="Kein Audioausgang gefunden";sel.appendChild(o);status.textContent=d.error||"Keine Geräte gefunden";}
+ }catch(e){status.textContent="Geräteliste nicht erreichbar: "+e.message;sel.innerHTML="<option value=''>Backend nicht erreichbar</option>";}
+}
+async function toggleAudioAnalysis(enabled){
+ const checkbox=document.getElementById("audio-enabled"),sel=document.getElementById("audio-device"),status=document.getElementById("audio-status");
+ checkbox.disabled=true;
+ try{
+  const url=enabled?"/api/audio/start":"/api/audio/stop";
+  const options=enabled?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({device:sel.value||null})}:{method:"POST"};
+  const r=await fetch(url,options); if(!r.ok) throw new Error("HTTP "+r.status);
+  const d=await r.json(); if(d.error)throw new Error(d.error);
+  status.textContent=enabled?"Audioanalyse aktiv – warte auf Signal":"Audioanalyse deaktiviert";
+ }catch(e){checkbox.checked=false;status.textContent="Fehler: "+e.message;}
+ finally{checkbox.disabled=false;pollAudioStatus();}
+}
+async function pollAudioStatus(){
+ try{
+  const r=await fetch("/api/audio/status"); if(!r.ok)throw new Error("HTTP "+r.status);
+  const s=await r.json(),status=document.getElementById("audio-status");
+  if(s.error)status.textContent="Fehler: "+s.error;
+  else if(s.running)status.textContent=s.signal?"Systemaudio wird analysiert":"Aktiv – warte auf Audiosignal";
+  else if(!document.getElementById("audio-enabled").checked)status.textContent="Nicht aktiv";
+  const f=s.features||{};
+  const labels={onset_strength:"Anschlagstärke",onset_density:"Rhythmusdichte",beat_regularity:"Beat-Konstanz",swing_ratio:"Swing",spectral_centroid:"Klanghelligkeit",low_energy:"Bassanteil",mid_energy:"Mittenanteil",high_energy:"Höhenanteil"};
+  const selected=["onset_strength","onset_density","beat_regularity","swing_ratio","spectral_centroid","low_energy","mid_energy","high_energy"];
+  document.getElementById("audio-live-features").textContent=selected.filter(k=>f[k]!=null).map(k=>labels[k]+": "+Number(f[k]).toFixed(2)).join(" · ")||"Noch keine Live-Daten.";
+  document.getElementById("audio-live-dance").textContent=s.dance?.best?`${s.phase==="early"?"Vorläufige Empfehlung":"Verfeinerte Empfehlung"}: ${s.dance.best.name} (${s.dance.best.score} %)`:"";
+ }catch(e){document.getElementById("audio-status").textContent="Failed to fetch – ist der Flask-Server gestartet?";}
+}
+async function loadGroupWeights(){
+ try{const r=await fetch("/api/classifier-weights");if(!r.ok)throw new Error();groupWeights=await r.json();}catch(e){}
+ const root=document.getElementById("group-weights");root.innerHTML="";
+ Object.entries(groupNames).forEach(([key,label])=>{
+  const item=document.createElement("label");item.innerHTML=`<span>${label}: <b id="gwv-${key}">${Number(groupWeights[key]||0).toFixed(1)}%</b></span><input type="range" min="0" max="100" step="1" value="${Number(groupWeights[key]||0)}" id="gw-${key}" style="width:100%">`;
+  root.appendChild(item);item.querySelector("input").addEventListener("input",()=>{document.getElementById("gwv-"+key).textContent=Number(item.querySelector("input").value).toFixed(1)+"%";updateGroupTotal();});
+ });updateGroupTotal();
+}
+function updateGroupTotal(){const values=[...document.querySelectorAll("#group-weights input")].map(x=>Number(x.value));document.getElementById("group-weight-total").textContent=values.reduce((a,b)=>a+b,0).toFixed(1)+" % (vor Normalisierung)";}
+async function saveGroupWeights(){const payload={};Object.keys(groupNames).forEach(k=>payload[k]=Number(document.getElementById("gw-"+k).value));const r=await fetch("/api/classifier-weights",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});const d=await r.json();document.getElementById("group-weight-message").textContent=r.ok?"Gespeichert.":(d.error||"Fehler");if(r.ok)loadGroupWeights();}
+function resetGroupWeights(){const defaults={bpm:55,energy:15,danceability:15,rhythm:15};Object.entries(defaults).forEach(([k,v])=>document.getElementById("gw-"+k).value=v);updateGroupTotal();}
+loadAudioDevices();loadGroupWeights();setInterval(pollAudioStatus,2000);
+</script>

@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import melodata
 import database
 import analysis_provider
+import audio_analysis
 from dance_classifier import classify_dance, DANCE_NAMES, DANCE_RULES
 
 load_dotenv()
@@ -134,8 +135,10 @@ def attach_dance_result(result):
         dance_result = classify_dance(
             result.get("bpm"), result.get("time_signature"),
             favorites=database.get_favorites(),
-            weights=database.get_classifier_weights(),
-            **{key: result.get(key) for key in ("energy","danceability","valence","acousticness","speechiness","instrumentalness","liveness","loudness")}
+            weights={**database.get_classifier_weights(), **__import__("json").loads(database.get_setting("classifier_weights_extended", "{}"))},
+            **{key: result.get(key) for key in ("energy","danceability","valence","acousticness","speechiness","instrumentalness","liveness","loudness",
+"onset_strength","onset_density","syncopation","beat_strength","beat_regularity","swing_ratio","rhythmic_complexity",
+"spectral_centroid","spectral_bandwidth","spectral_rolloff","spectral_flux","low_energy","mid_energy","high_energy","harmonic_percussive_ratio") }
         )
         if isrc:
             database.save_dance(
@@ -248,6 +251,8 @@ def spotify_worker():
                         analysis = None
                         analysis_error = None
                         analysis_status = "Neuer Song erkannt"
+                    # Previous track's loopback window must never influence the new track.
+                    audio_analysis.reset_song_features()
                     if song.get("artists"):
                         threading.Thread(
                             target=analyze_current_song,
@@ -350,6 +355,38 @@ def analyze_playlist_worker(playlist_id):
             playlist_status["message"] = str(error)
 
 
+
+@app.route("/api/audio/devices")
+def audio_devices_api():
+    result=audio_analysis.list_devices()
+    result["saved_device"]=database.get_setting("audio_device","")
+    return jsonify(result)
+
+@app.route("/api/audio/start", methods=["POST"])
+def audio_start_api():
+    data=request.get_json(silent=True) or {}
+    device=data.get("device") or None
+    database.set_setting("audio_device", device or "")
+    return jsonify(audio_analysis.start(device))
+
+@app.route("/api/audio/stop", methods=["POST"])
+def audio_stop_api():
+    return jsonify(audio_analysis.stop())
+
+@app.route("/api/audio/status")
+def audio_status_api():
+    state=audio_analysis.status()
+    if state.get("features"):
+        current=analysis or {}
+        from dance_classifier import DEFAULT_WEIGHTS
+        try: weights={**DEFAULT_WEIGHTS, **__import__("json").loads(database.get_setting("classifier_weights_extended","{}"))}
+        except Exception: weights=DEFAULT_WEIGHTS
+        if current.get("bpm") and current.get("time_signature"):
+            state["dance"]=classify_dance(current.get("bpm"),current.get("time_signature"),
+                favorites=database.get_favorites(),weights=weights,**state["features"],
+                **{k:current.get(k) for k in ("energy","danceability","valence","acousticness","speechiness","instrumentalness","liveness","loudness")})
+    return jsonify(state)
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -402,7 +439,7 @@ def api_state():
                 current_analysis.get("bpm"),
                 current_analysis.get("time_signature"),
                 favorites=database.get_favorites(),
-                weights=database.get_classifier_weights(),
+                weights={**database.get_classifier_weights(), **__import__("json").loads(database.get_setting("classifier_weights_extended", "{}"))},
                 **{key: current_analysis.get(key) for key in ("energy","danceability","valence","acousticness","speechiness","instrumentalness","liveness","loudness")}
             )
         return jsonify({
@@ -487,23 +524,31 @@ def refresh_all_automatic_dances():
 
 @app.route("/api/classifier-weights", methods=["GET", "POST"])
 def classifier_weights():
+    from dance_classifier import DEFAULT_WEIGHTS
+    groups={"bpm":55,"energy":15,"danceability":15,"rhythm":15}
+    rhythm_keys=[k for k in DEFAULT_WEIGHTS if k not in {"bpm","energy","danceability"}]
     if request.method == "GET":
-        return jsonify(database.get_classifier_weights())
-    data = request.get_json(silent=True) or {}
+        try: stored=__import__("json").loads(database.get_setting("classifier_weights_groups","{}"))
+        except Exception: stored={}
+        return jsonify({**groups,**stored})
+    data=request.get_json(silent=True) or {}
     try:
-        weight_keys = ("bpm","energy","danceability","valence","acousticness","speechiness","instrumentalness","liveness","loudness")
-        weights = {key: float(data.get(key)) for key in weight_keys}
-        if any(value < 0 or value > 100 for value in weights.values()):
-            raise ValueError("Alle Prozentwerte müssen zwischen 0 und 100 liegen.")
-        if round(sum(weights.values()), 5) != 100:
-            raise ValueError("Alle Gewichtungen müssen zusammen genau 100 % ergeben.")
-        database.set_classifier_weights(**weights)
-        refresh_all_automatic_dances()
-        refresh_current_dance()
-        return jsonify({"success": True, "weights": database.get_classifier_weights()})
-    except (TypeError, ValueError) as error:
-        return jsonify({"error": str(error)}), 400
-
+        values={k:max(0.0,min(100.0,float(data.get(k,groups[k])))) for k in groups}
+        total=sum(values.values())
+        if total<=0: raise ValueError("Mindestens ein Gewicht muss größer als 0 sein.")
+        values={k:v*100.0/total for k,v in values.items()}
+        internal={k:0.0 for k in DEFAULT_WEIGHTS}
+        internal["bpm"]=values["bpm"]
+        internal["energy"]=values["energy"]
+        internal["danceability"]=values["danceability"]
+        each=values["rhythm"]/max(1,len(rhythm_keys))
+        for key in rhythm_keys: internal[key]=each
+        database.set_setting("classifier_weights_extended",__import__("json").dumps(internal))
+        database.set_setting("classifier_weights_groups",__import__("json").dumps(values))
+        refresh_all_automatic_dances(); refresh_current_dance()
+        return jsonify({"success":True,"weights":values})
+    except (TypeError,ValueError) as error:
+        return jsonify({"error":str(error)}),400
 
 @app.route("/api/database-cache", methods=["GET", "POST"])
 def database_cache_api():
@@ -540,7 +585,7 @@ def refresh_current_dance():
         result = classify_dance(
             analysis.get("bpm"), analysis.get("time_signature"),
             favorites=database.get_favorites(),
-            weights=database.get_classifier_weights(),
+            weights={**database.get_classifier_weights(), **__import__("json").loads(database.get_setting("classifier_weights_extended", "{}"))},
             **{key: analysis.get(key) for key in ("energy","danceability","valence","acousticness","speechiness","instrumentalness","liveness","loudness")}
         )
         analysis["dance"] = result
@@ -574,7 +619,7 @@ def edit_song(isrc):
         if data.get("recalculate") and update_tempo:
             calculated = classify_dance(
                 bpm, meter, favorites=database.get_favorites(),
-                weights=database.get_classifier_weights(),
+                weights={**database.get_classifier_weights(), **__import__("json").loads(database.get_setting("classifier_weights_extended", "{}"))},
                 **{key: existing.get(key) for key in ("energy","danceability","valence","acousticness","speechiness","instrumentalness","liveness","loudness")}
             )
             dance = calculated["best"]["name"] if calculated["best"] else None
@@ -623,7 +668,7 @@ def edit_song(isrc):
                 elif update_tempo:
                     analysis["dance"] = classify_dance(
                         bpm, meter, favorites=database.get_favorites(),
-                        weights=database.get_classifier_weights(),
+                        weights={**database.get_classifier_weights(), **__import__("json").loads(database.get_setting("classifier_weights_extended", "{}"))},
                         **{key: analysis.get(key) for key in ("energy","danceability","valence","acousticness","speechiness","instrumentalness","liveness","loudness")}
                     )
                 analysis["cached"] = True
@@ -661,7 +706,7 @@ def create_manual_song():
         if not dance:
             result = classify_dance(
                 bpm, meter, favorites=database.get_favorites(),
-                weights=database.get_classifier_weights(),
+                weights={**database.get_classifier_weights(), **__import__("json").loads(database.get_setting("classifier_weights_extended", "{}"))},
                 energy=energy, danceability=danceability
             )
             database.save_dance(local_id, result["best"]["name"] if result["best"] else None,

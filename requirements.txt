@@ -1,4 +1,7 @@
-
-Flask
-requests
-python-dotenv
+Flask>=3.0
+requests>=2.31
+python-dotenv>=1.0
+soundcard>=0.4.3
+numpy>=1.24
+scipy>=1.10
+pytest>=7.0

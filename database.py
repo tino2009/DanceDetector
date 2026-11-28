@@ -57,6 +57,7 @@ def initialize():
             "musical_key": "ALTER TABLE songs ADD COLUMN musical_key TEXT",
             "key_confidence": "ALTER TABLE songs ADD COLUMN key_confidence REAL",
             "spotify_track_id": "ALTER TABLE songs ADD COLUMN spotify_track_id TEXT",
+            "audio_features_json": "ALTER TABLE songs ADD COLUMN audio_features_json TEXT",
         }
         for column, sql in migrations.items():
             if column not in columns:
@@ -354,3 +355,11 @@ def get_use_database_cache():
 
 def set_use_database_cache(enabled):
     set_setting("use_database_cache", "1" if enabled else "0")
+
+
+def save_audio_features(isrc, features):
+    """Speichert lokale Loopback-Merkmale, ohne bestehende Songdaten zu überschreiben."""
+    with connect() as db:
+        db.execute("UPDATE songs SET audio_features_json=? WHERE isrc=?",
+                   (json.dumps(features, ensure_ascii=False), isrc))
+
